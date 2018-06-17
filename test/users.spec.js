@@ -2,28 +2,13 @@
 
 const { ServiceBroker } = require("moleculer");
 const { Users } = require("../index");
-const { AuthUserNotCreated, AuthNotAuthenticated, AuthUserNotFound, AuthUserAuthentication } = require("../lib/util/errors");
+const { AuthUserNotCreated, AuthNotAuthenticated, AuthUserNotFound, AuthUserAuthentication } = require("../index").Errors;
 const { MongoMemoryServer } = require("mongodb-memory-server");
 
-// mock core mail service 
+// mock external service calls 
 let calls = {};
-const MailService = {
-    name: "core.mail",
-    actions: {
-        verification: {
-            handler(ctx) {
-                calls.data = ctx.params;
-            }
-        },
-        resetPassword: {
-            handler(ctx) {
-                calls.data = ctx.params;
-            }
-        } 
-    }
-};
 const Flow = {
-    name: "flow.publisher",
+    name: "my.flow",
     actions: {
         emit: {
             handler(ctx) {
@@ -32,7 +17,6 @@ const Flow = {
         }
     }
 };
-
 
 describe("Test user service", () => {
 
@@ -43,9 +27,28 @@ describe("Test user service", () => {
         broker = new ServiceBroker({
             logger: console
         });
-        broker.createService(MailService);
         broker.createService(Flow);
-        service = broker.createService(Users, Object.assign({ settings: { uri: mongoUri } }));
+        service = broker.createService(Users, Object.assign({ 
+            settings: { 
+                uri: mongoUri,
+                requestVerificationMail: {
+                    call: "my.flow.emit",
+                    params: {
+                        topic: "users",
+                        event: "requestVerificationMail",
+                        payload: "params"
+                    }
+                },
+                requestPasswordReset: {
+                    call: "my.flow.emit",
+                    params: {
+                        topic: "users",
+                        event: "requestPasswordReset",
+                        payload: "params"
+                    }
+                }
+            } 
+        }));
         return broker.start();
     });
 
@@ -228,6 +231,20 @@ describe("Test user service", () => {
             return broker.call("users.resetPassword", params, opts).then(res => {
                 expect(res).toBeDefined();
                 expect(res).toEqual(expect.objectContaining({ reset: id }));
+            });
+        });
+        
+        it("it should throw error AuthUserAuthentication", async () => {
+            opts = {};
+            let params = {
+                token: "wrong token",
+                password: "my changed secret"
+            };
+            expect.assertions(3);
+            await broker.call("users.resetPassword", params, opts).catch(err => {
+                expect(err instanceof AuthUserAuthentication).toBe(true);
+                expect(err.message).toEqual("token not valid");
+                expect(err.token).toEqual("wrong token");
             });
         });
         
