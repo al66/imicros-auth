@@ -4,6 +4,8 @@ const { ServiceBroker } = require("moleculer");
 const dbMixin = require("../lib/db.mongo");
 const { MongoMemoryServer } = require("mongodb-memory-server");
 
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
+
 let mongoServer, mongoUri;
 beforeAll( async () => {
     mongoServer = new MongoMemoryServer();
@@ -45,7 +47,7 @@ describe("Test db.mongo", () => {
             logLevel: "info"
         });
         service = broker.createService(Test);
-        return broker.start();
+        await broker.start();
     });
 
     afterAll(async (done) => {

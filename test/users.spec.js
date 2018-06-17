@@ -5,6 +5,9 @@ const { Users } = require("../index");
 const { AuthUserNotCreated, AuthNotAuthenticated, AuthUserNotFound, AuthUserAuthentication } = require("../index").Errors;
 const { MongoMemoryServer } = require("mongodb-memory-server");
 
+// May require additional time for downloading MongoDB binaries
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
+
 // mock external service calls 
 let calls = {};
 const Flow = {

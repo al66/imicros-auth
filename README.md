@@ -49,13 +49,13 @@ broker.start();
 
 ```
 ### Actions
-action create { email, password, locale } => { user }
-action requestConfirmationMail { email } => { sent }
-action confirm { token } => { verified }
-action requestPasswordResetMail { email } => { sent }
-action resetPassword { token, password } => { result }
-action login { email, password } => { user, token }
-action resolveToken { token } => { user }
+action create { email, password, locale } => { user }  
+action requestConfirmationMail { email } => { sent }  
+action confirm { token } => { verified }  
+action requestPasswordResetMail { email } => { sent }  
+action resetPassword { token, password } => { result }  
+action login { email, password } => { user, token }  
+action resolveToken { token } => { user }  
 action me { } => { user }
 #### Create
 action create { email, password, locale } => { user }
