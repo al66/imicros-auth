@@ -11,12 +11,20 @@ const { AuthNotAuthenticated,
 
 const timestamp = Date.now();
 
+let mongoServer, mongoUri;
+beforeAll( async () => {
+    mongoServer = new MongoMemoryServer();
+    mongoUri = await mongoServer.getConnectionString();
+});
+
+afterAll( async () => {
+    await mongoServer.stop();
+});
+
 describe("Test group service", () => {
 
-    let broker, service, mongoServer;
+    let broker, service;
     beforeAll( async () => {
-        mongoServer = new MongoMemoryServer();
-        let mongoUri = await mongoServer.getConnectionString();
         broker = new ServiceBroker({
             logger: console
         });
@@ -31,7 +39,6 @@ describe("Test group service", () => {
 
     afterAll(async (done) => {
         await broker.stop().then(() => done());
-        await mongoServer.stop();
     });
     
     describe("Test create service", () => {

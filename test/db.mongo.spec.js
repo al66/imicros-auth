@@ -4,9 +4,22 @@ const { ServiceBroker } = require("moleculer");
 const dbMixin = require("../lib/db.mongo");
 const { MongoMemoryServer } = require("mongodb-memory-server");
 
+let mongoServer, mongoUri;
+beforeAll( async () => {
+    mongoServer = new MongoMemoryServer();
+    mongoUri = await mongoServer.getConnectionString();
+});
+
+afterAll( async () => {
+    await mongoServer.stop();
+});
+
 const Test = {
     name: "test.db",
     mixins: [dbMixin],
+    settings: { 
+        uri: mongoUri 
+    }, 
     actions: {
         insert(ctx) {
             return this.database.collection.insertOne(ctx.params)
@@ -24,22 +37,19 @@ const Test = {
 
 describe("Test db.mongo", () => {
 
-    let broker, service, mongoServer;
+    let broker, service;
     let doc = { doc: "sample" };
     beforeAll(async () => {
-        mongoServer = new MongoMemoryServer();
-        let mongoUri = await mongoServer.getConnectionString();
         broker = new ServiceBroker({
             logger: console,
             logLevel: "info"
         });
-        service = broker.createService(Test, Object.assign({ settings: { uri: mongoUri } }));
+        service = broker.createService(Test);
         return broker.start();
     });
 
     afterAll(async (done) => {
         await broker.stop().then(() => done());
-        await mongoServer.stop();
     });
     
     it("service should be created", () => {
