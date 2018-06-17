@@ -1,0 +1,21 @@
+language: node_js
+
+node_js:
+  - stable
+
+install:
+  - npm install
+
+script:
+  - npm test
+  
+# Send coverage data to Coveralls
+after_script:
+  - cat coverage/lcov.info | node_modules/coveralls/bin/coveralls.js  
+
+notifications:
+  email:
+    recipients:
+      - andreas.leinen@imicros.de
+    on_success: never # default: change
+    on_failure: always # default: always
