@@ -4,6 +4,7 @@ const { ServiceBroker } = require("moleculer");
 const dbMixin = require("../lib/db.mongo");
 const { MongoMemoryServer } = require("mongodb-memory-server");
 
+// May require additional time for downloading MongoDB binaries
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
 
 let mongoServer, mongoUri;
