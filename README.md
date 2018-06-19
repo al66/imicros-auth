@@ -58,20 +58,114 @@ action login { email, password } => { user, token }
 action resolveToken { token } => { user }  
 action me { } => { user }
 #### Create
-action create { email, password, locale } => { user }
+```js
+let param = {
+    email: "example@test.com",  // valid email
+    password: "my secret",      // min 8
+    locale: "en"                // optional - 2 character
+}
+broker.call("users.create", param).then(user => {
+    // user.id is filled
+})
+```
 #### requestConfirmationMail
-action requestConfirmationMail { email } => { sent }
+```js
+let param = {
+    email: "example@test.com"   // registered email (user created)
+}
+broker.call("users.requestConfirmationMail", param).then(user => {
+    // calls the method under settings with default parameters:
+    //   {
+    //      email: user.email,
+    //      locale: user.locale,
+    //      token:  token
+    //   }
+    // in case of a successful call it returns
+    //  {
+    //      sent: "example@test.com"
+    //  }
+})
+```
 #### confirm
-action confirm { token } => { verified }
+```js
+let param = {
+    token: token  // valid token (received as return value from requestConfirmationMail)
+}
+broker.call("users.confirm", param).then(user => {
+    // in case of a successful call it returns
+    //  {
+    //      verified: "example@test.com"
+    //  }
+})
+```
 #### requestPasswordResetMail
-action requestPasswordResetMail { email } => { sent }
+```js
+let param = {
+    email: "example@test.com"   // registered email (user created)
+}
+broker.call("users.requestPasswordResetMail", param).then(user => {
+    // calls the method under settings with default parameters:
+    //   {
+    //      email: user.email,
+    //      locale: user.locale,
+    //      token:  token
+    //   }
+    // in case of a successful call it returns
+    //  {
+    //      sent: "example@test.com"
+    //  }
+})
+```
 #### resetPassword
-action resetPassword { token, password } => { result }
+```js
+let param = {
+    token: token,               // valid token (received as return value from requestPasswordResetMail)
+    password: "my new secret",  // new password, min 8
+}
+broker.call("users.resetPassword", param).then(user => {
+    // in case of a successful call it returns
+    //  {
+    //      reset: user.id
+    //  }
+})
+```
 #### login
-action login { email, password } => { user, token }
+```js
+let param = {
+    email: "example@test.com",  // registered email (user created)
+    password: "my secret"       // min 8
+}
+broker.call("users.login", param).then(user => {
+    // in case of a successful call it returns
+    //  {
+    //      token: generated token
+    //      user: user object
+    //  }
+})
+```
 #### resolveToken
-action resolveToken { token } => { user }
+This method is for calling in moleculer-web method authorize.  
+If using further functionalities like groups or acl, the user must be added to ctx.meta - at least user.id and user.email.  
+```js
+let param = {
+    token: token                // valid token (received as return value from login)
+}
+broker.call("users.resolveToken", param).then(user => {
+    // in case of a successful call it returns
+    //  {
+    //      user: user object
+    //  }
+})
+```
 #### me
-action me { } => { user }
+For REST call via API. Must be authorized by token - ctx.meta.user.id is then filled and this user is returned.
+```js
+broker.call("users.me", param).then(user => {
+    // in case of a successful call it returns
+    //  {
+    //      user: user object
+    //  }
+})
+```
 
 
