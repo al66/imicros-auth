@@ -58,6 +58,7 @@ action login { email, password } => { user, token }
 action resolveToken { token } => { user }  
 action me { } => { user }
 #### Create
+For REST call via API. Or as a direct call:
 ```js
 let param = {
     email: "example@test.com",  // valid email
@@ -69,6 +70,8 @@ broker.call("users.create", param).then(user => {
 })
 ```
 #### requestConfirmationMail
+For REST call via API. 
+Or as a direct call:
 ```js
 let param = {
     email: "example@test.com"   // registered email (user created)
@@ -80,6 +83,7 @@ broker.call("users.requestConfirmationMail", param).then(user => {
     //      locale: user.locale,
     //      token:  token
     //   }
+    // the token should be added to a link in the confirmation mail
     // in case of a successful call it returns
     //  {
     //      sent: "example@test.com"
@@ -87,6 +91,7 @@ broker.call("users.requestConfirmationMail", param).then(user => {
 })
 ```
 #### confirm
+This method must be called by the method which handles the confirmation link in the confirmation mail.
 ```js
 let param = {
     token: token  // valid token (received as return value from requestConfirmationMail)
@@ -99,6 +104,8 @@ broker.call("users.confirm", param).then(user => {
 })
 ```
 #### requestPasswordResetMail
+For REST call via API. 
+Or as a direct call:
 ```js
 let param = {
     email: "example@test.com"   // registered email (user created)
@@ -117,6 +124,8 @@ broker.call("users.requestPasswordResetMail", param).then(user => {
 })
 ```
 #### resetPassword
+For REST call via API. 
+Or as a direct call:
 ```js
 let param = {
     token: token,               // valid token (received as return value from requestPasswordResetMail)
@@ -130,6 +139,8 @@ broker.call("users.resetPassword", param).then(user => {
 })
 ```
 #### login
+For REST call via API. 
+Or as a direct call:
 ```js
 let param = {
     email: "example@test.com",  // registered email (user created)
@@ -145,7 +156,7 @@ broker.call("users.login", param).then(user => {
 ```
 #### resolveToken
 This method is for calling in moleculer-web method authorize.  
-If using further functionalities like groups or acl, the user must be added to ctx.meta - at least user.id and user.email.  
+If further functionalities like groups or acl will be used, the user must be added to ctx.meta - at least user.id and user.email.  
 ```js
 let param = {
     token: token                // valid token (received as return value from login)
@@ -158,7 +169,7 @@ broker.call("users.resolveToken", param).then(user => {
 })
 ```
 #### me
-For REST call via API. Must be authorized by token - ctx.meta.user.id is then filled and this user is returned.
+For REST call via API. Must be authorized by token - ctx.meta.user.id is then filled and the user is returned.
 ```js
 broker.call("users.me", param).then(user => {
     // in case of a successful call it returns
