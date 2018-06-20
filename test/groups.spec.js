@@ -588,4 +588,82 @@ describe("Test group service", () => {
         });        
 
     });
+
+    describe("Test group access", () => {
+
+        let opts, first, second, third;
+        beforeEach(() => {
+            opts = { meta: { user: { id: `1-${timestamp}`, email: `1-${timestamp}@host.com` } } };
+        });
+
+        it("it should return id for first group", () => {
+            let params = {
+                name: "first group"
+            };
+            return broker.call("groups.add", params, opts).then(res => {
+                first = res.id;
+                expect(res.id).toBeDefined();
+                expect(res).toEqual(expect.objectContaining(params));
+            });
+        });
+
+        it("it should return id for second group", () => {
+            opts = { meta: { user: { id: `2-${timestamp}`, email: `2-${timestamp}@host.com` } } };
+            let params = {
+                name: "second group"
+            };
+            return broker.call("groups.add", params, opts).then(res => {
+                second = res.id;
+                expect(res.id).toBeDefined();
+                expect(res).toEqual(expect.objectContaining(params));
+            });
+        });
+
+        it("it should return id for third group", () => {
+            opts = { meta: { user: { id: `3-${timestamp}`, email: `3-${timestamp}@host.com` } } };
+            let params = {
+                name: "third group"
+            };
+            return broker.call("groups.add", params, opts).then(res => {
+                third = res.id;
+                expect(res.id).toBeDefined();
+                expect(res).toEqual(expect.objectContaining(params));
+            });
+        });
+
+        it("it should add access grant for a group ", () => {
+            let params = {
+                id: first,
+                group: second
+            };
+            return broker.call("groups.addAccess", params, opts).then(res => {
+                expect(res).toBeDefined();
+                expect(res.added).toEqual(second);
+            });
+        });        
+
+        it("it should add access grant for a group ", () => {
+            let params = {
+                id: first,
+                group: third
+            };
+            return broker.call("groups.addAccess", params, opts).then(res => {
+                expect(res).toBeDefined();
+                expect(res.added).toEqual(third);
+            });
+        });        
+
+        it("it should remove access grant for a group ", () => {
+            let params = {
+                id: first,
+                group: third
+            };
+            return broker.call("groups.removeAccess", params, opts).then(res => {
+                expect(res).toBeDefined();
+                expect(res.removed).toEqual(third);
+            });
+        });        
+
+    });
+    
 });

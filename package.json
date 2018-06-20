@@ -1,6 +1,6 @@
 {
   "name": "imicros-auth",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Andreas Leinen <andreas.leinen@imicros.de> (www.imicros.de)",
   "license": "MIT",
   "description": "Moleculer services for Authentication, Authorization and ACL",
