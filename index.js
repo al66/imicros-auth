@@ -9,5 +9,6 @@ module.exports = {
     Token: require("./lib/token"),
     //Rules: require("./lib/rules"),
     //Store: require("./lib/store")
+    Authorized: require("./lib/authorized"),
     Errors: require("./lib/util/errors")
 };

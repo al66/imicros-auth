@@ -335,7 +335,7 @@ describe("Test group service", () => {
                 expect(err.message).toEqual("group id not found or already invited");
                 expect(err.id).toEqual(id.replace(/...$/,"999"));
             });
-        });
+        }); 
 
     });
 
