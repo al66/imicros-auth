@@ -1,6 +1,6 @@
 {
   "name": "imicros-auth",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": "Andreas Leinen <andreas.leinen@imicros.de> (www.imicros.de)",
   "license": "MIT",
   "description": "Moleculer services for Authentication, Authorization and ACL",
@@ -34,17 +34,17 @@
     "ACL"
   ],
   "devDependencies": {
-    "coveralls": "^3.0.1",
-    "eslint": "^4.19.1",
-    "jest": "^22.4.3",
-    "moleculer": "^0.12.3",
-    "mongodb-memory-server": "^1.8.0",
-    "nats": "^0.8.10"
+    "coveralls": "^3.0.2",
+    "eslint": "^5.9.0",
+    "jest": "^23.6.0",
+    "moleculer": "^0.13.4",
+    "mongodb-memory-server": "^2.7.0",
+    "nats": "^1.0.1"
   },
   "dependencies": {
-    "bcrypt": "^2.0.1",
-    "jsonwebtoken": "^8.2.1",
-    "mongodb": "^3.0.7",
-    "uuidv4": "^1.0.0"
+    "bcrypt": "^3.0.2",
+    "jsonwebtoken": "^8.3.0",
+    "mongodb": "^3.1.9",
+    "uuidv4": "^2.0.0"
   }
 }
