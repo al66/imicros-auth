@@ -2,26 +2,12 @@
 
 const { ServiceBroker } = require("moleculer");
 const dbMixin = require("../lib/db.mongo");
-const { MongoMemoryServer } = require("mongodb-memory-server");
-
-// May require additional time for downloading MongoDB binaries
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
-
-let mongoServer, mongoUri;
-beforeAll( async () => {
-    mongoServer = new MongoMemoryServer();
-    mongoUri = await mongoServer.getConnectionString();
-});
-
-afterAll( async () => {
-    await mongoServer.stop();
-});
 
 const Test = {
     name: "test.db",
     mixins: [dbMixin],
     settings: { 
-        uri: mongoUri 
+        uri: process.env.MONGODB_URI
     }, 
     actions: {
         insert(ctx) {

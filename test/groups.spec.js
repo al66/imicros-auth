@@ -2,27 +2,13 @@
 
 const { ServiceBroker } = require("moleculer");
 const { Groups } = require("../index");
-const { MongoMemoryServer } = require("mongodb-memory-server");
 const { AuthNotAuthenticated,
         AuthNoGroupsFound,
         AuthGroupNotFound,
        AuthGroupsDbUpdate   
       } = require("../index").Errors;
 
-// May require additional time for downloading MongoDB binaries
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
-
 const timestamp = Date.now();
-
-let mongoServer, mongoUri;
-beforeAll( async () => {
-    mongoServer = new MongoMemoryServer();
-    mongoUri = await mongoServer.getConnectionString();
-});
-
-afterAll( async () => {
-    await mongoServer.stop();
-});
 
 describe("Test group service", () => {
 
@@ -34,7 +20,7 @@ describe("Test group service", () => {
         service = broker.createService(Groups, Object.assign({ 
             settings: { 
                 db: "imicros", 
-                uri: mongoUri 
+                uri: process.env.MONGODB_URI
             } 
         }));
         return broker.start();

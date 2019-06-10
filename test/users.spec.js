@@ -3,10 +3,6 @@
 const { ServiceBroker } = require("moleculer");
 const { Users } = require("../index");
 const { AuthUserNotCreated, AuthNotAuthenticated, AuthUserNotFound, AuthUserAuthentication } = require("../index").Errors;
-const { MongoMemoryServer } = require("mongodb-memory-server");
-
-// May require additional time for downloading MongoDB binaries
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
 
 // mock external service calls 
 let calls = {};
@@ -21,16 +17,6 @@ const Flow = {
     }
 };
 
-let mongoServer, mongoUri;
-beforeAll( async () => {
-    mongoServer = new MongoMemoryServer();
-    mongoUri = await mongoServer.getConnectionString();
-});
-
-afterAll( async () => {
-    await mongoServer.stop();
-});
-
 describe("Test user service", () => {
 
     let broker, service;
@@ -41,7 +27,8 @@ describe("Test user service", () => {
         broker.createService(Flow);
         service = broker.createService(Users, Object.assign({ 
             settings: { 
-                uri: mongoUri,
+                db: "imicros", 
+                uri: process.env.MONGODB_URI,
                 requestVerificationMail: {
                     call: "my.flow.emit",
                     params: {
