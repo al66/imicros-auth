@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/al66/imicros-auth.svg?branch=master)](https://travis-ci.org/al66/imicros-auth)
 [![Coverage Status](https://coveralls.io/repos/github/al66/imicros-auth/badge.svg?branch=master)](https://coveralls.io/github/al66/imicros-auth?branch=master)
 
-[Moleculer](https://github.com/moleculerjs/moleculer) services for Authentication, Authorization and ACL
+[Moleculer](https://github.com/moleculerjs/moleculer) services for Authentication
 
 ## Installation
 ```
@@ -36,7 +36,7 @@ service = broker.createService(Users, Object.assign({
             }
         },
         requestPasswordReset: {
-            call: "low.publisher.emit",
+            call: "flow.publisher.emit",
             params: {
                 topic: "users",
                 event: "requestPasswordReset",

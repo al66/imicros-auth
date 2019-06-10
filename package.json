@@ -1,6 +1,6 @@
 {
   "name": "imicros-auth",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "author": "Andreas Leinen <andreas.leinen@imicros.de> (www.imicros.de)",
   "license": "MIT",
   "description": "Moleculer services for Authentication, Authorization and ACL",
@@ -13,7 +13,6 @@
     "test-users": "jest test/users.spec.js --no-cache",
     "test-groups": "jest test/groups.spec.js --no-cache",
     "test-groups-cover": "jest test/groups.spec.js --coverage --no-cache",
-    "test-authorized": "jest test/authorized.spec.js --no-cache",
     "test": "jest --coverage --no-cache"
   },
   "jest": {
@@ -29,21 +28,19 @@
   },
   "keywords": [
     "moleculer",
-    "authentication",
-    "authorization",
-    "ACL"
+    "authentication"
   ],
   "devDependencies": {
-    "coveralls": "^3.0.3",
+    "coveralls": "^3.0.4",
     "jest": "^24.8.0",
-    "moleculer": "^0.13.4",
-    "mongodb-memory-server": "^2.7.0",
-    "nats": "^1.0.1"
+    "moleculer": "^0.13.9",
+    "mongodb-memory-server": "^2.9.3",
+    "nats": "^1.3.0"
   },
   "dependencies": {
-    "bcrypt": "^3.0.2",
-    "jsonwebtoken": "^8.3.0",
-    "mongodb": "^3.1.9",
+    "bcrypt": "^3.0.6",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^3.2.7",
     "uuidv4": "^2.0.0"
   }
 }
