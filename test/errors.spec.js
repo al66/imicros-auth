@@ -8,9 +8,6 @@ const { AuthError,
         AuthUserNotFound,
         AuthUserVerification,
         AuthUserAuthentication,
-        AuthGroupsDbUpdate,
-        AuthGroupNotFound,
-        AuthNoGroupsFound,
         AuthNotAuthorized
       } = require("../lib/util/errors");
 
@@ -48,18 +45,6 @@ describe("Test Errors", () => {
         expect(new AuthUserAuthentication("message") instanceof AuthUserAuthentication).toBe(true);
     });
     
-    it("it should create error without parameters", () => {
-        expect(new AuthGroupsDbUpdate("message") instanceof AuthGroupsDbUpdate).toBe(true);
-    });
-    
-    it("it should create error without parameters", () => {
-        expect(new AuthGroupNotFound("message") instanceof AuthGroupNotFound).toBe(true);
-    });
-
-    it("it should create error without parameters", () => {
-        expect(new AuthNoGroupsFound("message") instanceof AuthNoGroupsFound).toBe(true);
-    });
-
     it("it should create error without parameters", () => {
         expect(new AuthNotAuthorized("message") instanceof AuthNotAuthorized).toBe(true);
     });

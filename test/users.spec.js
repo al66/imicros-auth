@@ -4,6 +4,8 @@ const { ServiceBroker } = require("moleculer");
 const { Users } = require("../index");
 const { AuthUserNotCreated, AuthNotAuthenticated, AuthUserNotFound, AuthUserAuthentication } = require("../index").Errors;
 
+let timestamp = Date.now();
+
 // mock external service calls 
 let calls = {};
 const Flow = {
@@ -19,16 +21,19 @@ const Flow = {
 
 describe("Test user service", () => {
 
-    let broker, service;
+    let broker, service, initialUser;
+    
     beforeAll( async () => {
         broker = new ServiceBroker({
             logger: console
         });
         broker.createService(Flow);
+        initialUser = `admin-${timestamp}@imicros.de`;
         service = broker.createService(Users, Object.assign({ 
             settings: { 
                 db: "imicros", 
                 uri: process.env.MONGODB_URI,
+                verifiedUsers: [initialUser],
                 requestVerificationMail: {
                     call: "my.flow.emit",
                     params: {
@@ -247,5 +252,23 @@ describe("Test user service", () => {
         
         
     });
+    
+    describe("Test create initial user", () => {
+
+        it("it should return initial verified user with id", () => {
+            let opts;
+            let params = {
+                email: initialUser,
+                password: "my secret"
+            };
+            return broker.call("users.create", params, opts).then(res => {
+                expect(res.id).toBeDefined();
+                expect(res.password).not.toBeDefined();
+                expect(res).toEqual(expect.objectContaining({ email: params.email, locale: "en", verified: true }));
+            });
+        });
+
+        
+    });    
     
 });
