@@ -2,16 +2,28 @@
 
 const { ServiceBroker } = require("moleculer");
 const { Users } = require("../index");
-const { AuthUserNotCreated, AuthNotAuthenticated, AuthUserNotFound, AuthUserAuthentication } = require("../index").Errors;
+// const { AuthUserNotCreated, AuthNotAuthenticated, AuthUserNotFound, AuthUserAuthentication } = require("../index").Errors;
+const { AuthUserAuthentication } = require("../index").Errors;
 
 let timestamp = Date.now();
 
 // mock external service calls 
 let calls = {};
-const Flow = {
-    name: "my.flow",
-    actions: {
-        emit: {
+const Eventhandler = {
+    name: "Eventhandler",
+    events: {
+        "users.verification.requested": {
+            handler(ctx) {
+                /*
+                console.log("Payload:", ctx.params);
+                console.log("Sender:", ctx.nodeID);
+                console.log("Metadata:", ctx.meta);
+                console.log("The called event name:", ctx.eventName);
+                */
+                calls.data = ctx.params;
+            }
+        },
+        "users.password.reset.requested": {
             handler(ctx) {
                 calls.data = ctx.params;
             }
@@ -25,31 +37,17 @@ describe("Test user service", () => {
     
     beforeAll( async () => {
         broker = new ServiceBroker({
-            logger: console
+            logger: console,
+            logLevel: "info" //"debug"
         });
-        broker.createService(Flow);
+        broker.createService(Eventhandler);
         initialUser = `admin-${timestamp}@imicros.de`;
         service = broker.createService(Users, Object.assign({ 
             settings: { 
                 db: "imicros", 
                 uri: process.env.MONGODB_URI,
                 verifiedUsers: [initialUser],
-                requestVerificationMail: {
-                    call: "my.flow.emit",
-                    params: {
-                        topic: "users",
-                        event: "requestVerificationMail",
-                        payload: "params"
-                    }
-                },
-                requestPasswordReset: {
-                    call: "my.flow.emit",
-                    params: {
-                        topic: "users",
-                        event: "requestPasswordReset",
-                        payload: "params"
-                    }
-                }
+                emitEvents: true
             } 
         }));
         return broker.start();
@@ -92,42 +90,6 @@ describe("Test user service", () => {
             });
         });
 
-        it("it should return with error", async () => {
-            let params = {
-                email: email,
-                password: "my secret"
-            };
-            expect.assertions(3);
-            await broker.call("users.create", params, opts).catch(err => {
-                expect(err instanceof AuthUserNotCreated).toBe(true);
-                expect(err.message).toEqual("user already exist!");
-                expect(err.email).toEqual(email);
-            });
-        });
-
-        it("it should return error not authenticated", async () => {
-            opts = { };
-            let params = {
-            };
-            expect.assertions(2);
-            await broker.call("users.me", params, opts).catch(err => {
-                expect(err instanceof AuthNotAuthenticated).toBe(true);
-                expect(err.message).toEqual("not authenticated");
-            });
-        });
-        
-        it("it should return error user not found", async () => {
-            opts = { meta: { user: { id: "5af99fa9233ac418e41a1a1b" } } };
-            let params = {
-            };
-            expect.assertions(3);
-            await broker.call("users.me", params, opts).catch(err => {
-                expect(err instanceof AuthUserNotFound).toBe(true);
-                expect(err.message).toEqual("user not found");
-                expect(err.id).toEqual(opts.meta.user.id);
-            });
-        });
-
         it("it should return new user", () => {
             opts = { meta: { user: { id: id } } };
             let params = {
@@ -146,10 +108,17 @@ describe("Test user service", () => {
             return broker.call("users.requestConfirmationMail", params, opts).then(res => {
                 expect(res).toBeDefined();
                 expect(res).toEqual(expect.objectContaining({ sent: email }));
+                // wait for event
+                setTimeout(function () {
+                    if (!calls.data) {
+                        console.log("event not received");
+                    }
+                }, 1000);
                 expect(calls.data).toBeDefined();
-                expect(calls.data.payload.token).toBeDefined();
-                expect(calls.data.payload.email).toEqual(email);
-                token = calls.data.payload.token;
+                expect(calls.data.token).toBeDefined();
+                expect(calls.data.locale).toBeDefined();
+                expect(calls.data.email).toEqual(email);
+                token = calls.data.token;
             });
         });
         
@@ -187,19 +156,6 @@ describe("Test user service", () => {
             });
         });
         
-        it("it should throw error wrong password", async () => {
-            let params = {
-                email: email,
-                password: "my wrong secret"
-            };
-            expect.assertions(3);
-            await broker.call("users.login", params, opts).catch(err => {
-                expect(err instanceof AuthUserAuthentication).toBe(true);
-                expect(err.message).toEqual("wrong password");
-                expect(err.email).toEqual(email);
-            });
-        });
-        
         it("it should resolve access token", () => {
             let params = {
                 token: token
@@ -219,9 +175,15 @@ describe("Test user service", () => {
             return broker.call("users.requestPasswordResetMail", params, opts).then(res => {
                 expect(res).toBeDefined();
                 expect(res).toEqual(expect.objectContaining({ sent: email }));
+                // wait for event
+                setTimeout(function () {
+                    if (!calls.data) {
+                        console.log("event not received");
+                    }
+                }, 1000);
                 expect(calls.data).toBeDefined();
-                expect(calls.data.payload.token).toBeDefined();
-                token = calls.data.payload.token;
+                expect(calls.data.token).toBeDefined();
+                token = calls.data.token;
             });
         });
         
@@ -253,23 +215,5 @@ describe("Test user service", () => {
         
         
     });
-    
-    describe("Test create initial user", () => {
-
-        it("it should return initial verified user with id", () => {
-            let opts;
-            let params = {
-                email: initialUser,
-                password: "my secret"
-            };
-            return broker.call("users.create", params, opts).then(res => {
-                expect(res.id).toBeDefined();
-                expect(res.password).not.toBeDefined();
-                expect(res).toEqual(expect.objectContaining({ email: params.email, locale: "en", verified: true }));
-            });
-        });
-
         
-    });    
-    
 });
