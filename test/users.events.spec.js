@@ -7,6 +7,11 @@ const { AuthUserAuthentication } = require("../index").Errors;
 
 let timestamp = Date.now();
 
+// group access for imicros-flow
+process.env.FLOW_GROUP_ID = "used group for handling events in imicros-flow";
+process.env.SERVICE_TOKEN = "used to identify this service at imicros-acl for group access";
+process.env.GRANT_ACCESS_TOKEN = "used to request group access for group <FLOW_GROUP_ID> at imicros-acl";
+
 // mock external service calls 
 let calls = {};
 const Eventhandler = {
@@ -21,45 +26,77 @@ const Eventhandler = {
                 console.log("The called event name:", ctx.eventName);
                 */
                 calls.data = ctx.params;
+                calls.meta = ctx.meta;
             }
         },
         "users.password.reset.requested": {
             handler(ctx) {
                 calls.data = ctx.params;
+                calls.meta = ctx.meta;
             }
         }
     }
 };
 
+// mock acl service
+let accessToken = "grant access for group <FLOW_GROUP_ID> for this service";
+const ACL = {
+    name: "acl",
+    actions: {
+        "requestAccess": {
+            params: {
+                forGroupId: { type: "string" }
+            },
+            async handler(ctx) {
+                if (ctx.meta.grantAccessToken === process.env.GRANT_ACCESS_TOKEN && 
+                    ctx.meta.serviceToken === process.env.SERVICE_TOKEN) return { token: accessToken };
+                return null;
+            }
+        },
+        "users.password.reset.requested": {
+            handler(ctx) {
+                calls.data = ctx.params;
+                calls.meta = ctx.meta;
+            }
+        }
+    }
+};
+
+
+
 describe("Test user service", () => {
 
-    let broker, service, initialUser;
+    let broker, service, initialUser, handlerService, aclService;
     
-    beforeAll( async () => {
-        broker = new ServiceBroker({
-            logger: console,
-            logLevel: "info" //"debug"
-        });
-        broker.createService(Eventhandler);
-        initialUser = `admin-${timestamp}@imicros.de`;
-        service = broker.createService(Users, Object.assign({ 
-            settings: { 
-                db: "imicros", 
-                uri: process.env.MONGODB_URI,
-                verifiedUsers: [initialUser],
-                emitEvents: true
-            } 
-        }));
-        return broker.start();
-    });
+    beforeAll(() => {});
 
-    afterAll(async (done) => {
-        await broker.stop().then(() => done());
-    });
+    afterAll(() => {});
     
     describe("Test create service", () => {
 
-        it("it should be created", () => {
+    
+        it("it should be created", async () => {
+            broker = new ServiceBroker({
+                logger: console,
+                logLevel: "info" //"debug"
+            });
+            handlerService = broker.createService(Eventhandler);
+            aclService = broker.createService(ACL);
+            initialUser = `admin-${timestamp}@imicros.de`;
+            service = broker.createService(Users, Object.assign({ 
+                settings: { 
+                    db: "imicros", 
+                    uri: process.env.MONGODB_URI,
+                    verifiedUsers: [initialUser],
+                    emitEvents: true,
+                    services: {
+                        acl: "acl"
+                    }
+                } 
+            }));
+            await broker.start();
+            expect(handlerService).toBeDefined();
+            expect(aclService).toBeDefined();
             expect(service).toBeDefined();
             expect(service.database.db).toBeDefined();
             expect(service.database.collection).toBeDefined();
@@ -118,6 +155,7 @@ describe("Test user service", () => {
                 expect(calls.data.token).toBeDefined();
                 expect(calls.data.locale).toBeDefined();
                 expect(calls.data.email).toEqual(email);
+                expect(calls.meta.accessToken).toEqual(accessToken);
                 token = calls.data.token;
             });
         });
@@ -183,6 +221,7 @@ describe("Test user service", () => {
                 }, 1000);
                 expect(calls.data).toBeDefined();
                 expect(calls.data.token).toBeDefined();
+                expect(calls.meta.accessToken).toEqual(accessToken);
                 token = calls.data.token;
             });
         });
@@ -215,5 +254,13 @@ describe("Test user service", () => {
         
         
     });
-        
+
+    describe("Test stop broker", () => {
+        it("should stop the broker", async () => {
+            expect.assertions(1);
+            await broker.stop();
+            expect(broker).toBeDefined();
+        });
+    });    
+    
 });

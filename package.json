@@ -1,6 +1,6 @@
 {
   "name": "imicros-auth",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "author": "Andreas Leinen <andreas.leinen@imicros.de> (www.imicros.de)",
   "license": "MIT",
   "description": "Moleculer services for Authentication, Authorization and ACL",
@@ -12,9 +12,7 @@
     "test-token": "jest test/token.spec.js --no-cache",
     "test-users": "jest test/users.spec.js --no-cache --config=local.js",
     "test-events": "jest test/users.events.spec.js --no-cache --config=local.js",
-    "test-groups": "jest test/groups.spec.js --no-cache --config=local.js",
-    "test-groups-cover": "jest test/groups.spec.js --coverage --no-cache",
-    "test-local": "jest --coverage --no-cache --config=local.js",
+    "test-local": "jest --coverage --no-cache --silent --config=local.js",
     "test": "jest --coverage --no-cache"
   },
   "jest": {
@@ -33,7 +31,7 @@
     "authentication"
   ],
   "devDependencies": {
-    "jest": "^25.5.2",
+    "jest": "^25.5.4",
     "moleculer": "^0.14.6",
     "nats": "^1.4.9"
   },

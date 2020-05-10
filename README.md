@@ -156,7 +156,7 @@ broker.call("users.login", param).then(user => {
 ```
 #### resolveToken
 This method is for calling in moleculer-web method authorize.  
-If further functionalities like groups or acl will be used, the user must be added to ctx.meta - at least user.id and user.email.  
+If further imicros services like imicros-groups or imicros-acl will be used, the user must be added to ctx.meta - at least user.id and user.email.  
 ```js
 let param = {
     token: token                // valid token (received as return value from login)
