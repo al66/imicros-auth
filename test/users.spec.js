@@ -207,6 +207,7 @@ describe("Test user service", () => {
             return broker.call("users.resolveToken", params, opts).then(res => {
                 expect(res).toBeDefined();
                 expect(res.user).toEqual(expect.objectContaining({ email: email }));
+                expect(res.user).toEqual(expect.objectContaining({ token }));
             });
         });
 
